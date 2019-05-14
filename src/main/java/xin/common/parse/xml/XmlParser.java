@@ -1,9 +1,9 @@
 package xin.common.parse.xml;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
-import xin.common.converter.ConvertException;
-import xin.common.converter.FieldValueConverter;
-import xin.common.converter.FieldValueSetter;
+import xin.common.converter.*;
 import xin.common.handler.DefaultFieldConverterHandler;
 import xin.common.handler.FieldConverterHandler;
 import xin.common.parse.xml.annotation.XmlField;
@@ -15,6 +15,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 
 /**
  * <pre>
@@ -25,9 +26,23 @@ import java.lang.reflect.Field;
  * @version 1.0
  * @since 2019/5/14
  */
+@Slf4j
 public class XmlParser implements FieldValueSetter {
 
-    private FieldConverterHandler handler = new DefaultFieldConverterHandler();
+    private final FieldConverterHandler handler;
+
+
+    public XmlParser(){
+        handler = new DefaultFieldConverterHandler();
+        handler.registerConverter(byte.class,new ByteFieldConverter());
+        handler.registerConverter(Byte.class,new ByteFieldConverter());
+        handler.registerConverter(short.class,new ShortFieldConverter());
+        handler.registerConverter(Short.class,new ShortFieldConverter());
+        handler.registerConverter(long.class,new LongFieldConverter());
+        handler.registerConverter(Long.class,new LongFieldConverter());
+        handler.registerConverter(float.class,new FloatFieldConverter());
+        handler.registerConverter(Float.class,new FloatFieldConverter());
+    }
 
 
     public <T> T parse(InputStream is,Class<T> clazz) throws xin.common.parse.ParseException {
@@ -54,20 +69,20 @@ public class XmlParser implements FieldValueSetter {
     private <T> T doParse(Document document, Class<T> clazz)
             throws IllegalAccessException, IllegalArgumentException, ConvertException, InstantiationException {
         final Field[] fields = clazz.getDeclaredFields();
-        T t = clazz.newInstance();
+        T bean = clazz.newInstance();
         for (final Field field : fields) {
             XmlField xmlField =  field.getAnnotation(XmlField.class);
             if(xmlField != null){
-                String tag = xmlField.name();
-                String text = document.getElementsByTagName(tag).item(0).getTextContent();
-                setValue(field, t, text);
+                String tag = StringUtils.isNoneBlank(xmlField.name()) ? xmlField.name() : field.getName();
+                String source = document.getElementsByTagName(tag).item(0).getTextContent();
+                setValue(field,bean, source,xmlField.format(),xmlField.scale(),xmlField.roundingMode());
             }
         }
-        return t;
+        return bean;
     }
 
     @Override
-    public void setValue(Field field, Object bean, String source)
+    public void setValue(Field field, Object bean, String source,String format,String scale,int roundMode)
             throws IllegalAccessException,IllegalArgumentException,ConvertException {
         Class<?> converterClass;
         if (field.getType().isArray()) {
@@ -75,12 +90,22 @@ public class XmlParser implements FieldValueSetter {
         } else {
             converterClass = field.getType();
         }
+        field.setAccessible(true);
         FieldValueConverter converter = handler.getFieldConverter(converterClass);
         if (converter != null) {
-            Object obj = converter.toObject(source, field);
+            Object obj = null;
+            if(converter instanceof DateFieldConverter && StringUtils.isNotBlank(format)){
+                DateFieldConverter dateConverter= (DateFieldConverter) converter;
+                obj = dateConverter.toDate(source, field,format);
+            }else if(converter instanceof BigDecimalFieldConverter && StringUtils.isNotBlank(scale)){
+                BigDecimalFieldConverter dateConverter= (BigDecimalFieldConverter) converter;
+                obj = dateConverter.toBigDecimal(source, field,Integer.valueOf(scale),roundMode);
+            }else{
+                obj= converter.toObject(source, field);
+            }
             field.set(bean, obj);
-            return;
+            return ;
         }
-        field.set(bean, source);
+        field.set(bean, source);//默认按String类型处理
     }
 }

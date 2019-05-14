@@ -24,7 +24,6 @@
         <maven.compile.target>1.8</maven.compile.target>
         <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
         <junit-version>4.12</junit-version>
-
         <commons-lang3-version>3.3.2</commons-lang3-version>
     </properties>
 
@@ -52,6 +51,8 @@
             <version>${commons-lang3-version}</version>
             <scope>provided</scope>
         </dependency>
+
+
 
         <dependency>
             <groupId>junit</groupId>
