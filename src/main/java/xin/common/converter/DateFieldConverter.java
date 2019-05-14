@@ -40,4 +40,12 @@ public class DateFieldConverter extends AbstractFieldValueConverter {
             throw new ConvertException(e.getMessage(),e);
         }
     }
+
+    public Object toDate(String source, Field field,String format) throws ConvertException {
+        try {
+            return new SimpleDateFormat(format).parse(source);
+        } catch (ParseException e) {
+            throw new ConvertException(e.getMessage(),e);
+        }
+    }
 }

@@ -30,7 +30,7 @@ public class CharacterFieldConverter extends AbstractFieldValueConverter {
             if (source.toCharArray().length > 1) {
                 throw new IllegalArgumentException(source + " is not a Character type value");
             }
-            return Character.valueOf(source.charAt(0));
+            return source.charAt(0);
         } catch (Exception e) {
             throw new ConvertException(e.getMessage(),e);
         }

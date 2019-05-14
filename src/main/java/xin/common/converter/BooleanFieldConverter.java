@@ -63,11 +63,12 @@ public class BooleanFieldConverter extends AbstractFieldValueConverter {
         }
     }
 
+    /**
+     * 校验结果，默认false，有匹配结果则更新为true，表示校验通过
+     * @param source
+     */
     private void validateValue(String source) {
-        /**
-         * 校验结果，默认false，有匹配结果则更新为true，表示校验通过
-         */
-        boolean result = false;
+        boolean result;
         if (ignoreCase) {
             result = source.equalsIgnoreCase(trueCaseStr) || source.equalsIgnoreCase(falseCaseStr);
         } else {

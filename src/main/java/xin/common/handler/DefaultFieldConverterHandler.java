@@ -24,10 +24,10 @@ public class DefaultFieldConverterHandler implements FieldConverterHandler {
 
     private final Map<Class<?>, FieldValueConverter> localConverterMapper;
 
+    /**
+     * 内置初始化的转换器
+     */
     static {
-        /**
-         * 内置初始化的转换器
-         */
         FieldValueConverter converter;
         converter = new IntegerFieldConverter();
         defaultLocalConverterMapper.put(int.class, converter);
@@ -66,7 +66,7 @@ public class DefaultFieldConverterHandler implements FieldConverterHandler {
     @Override
     public void registerConverter(Class<?> clazz, FieldValueConverter converter) {
         if (!converter.canConvert(clazz)) {
-            throw new IllegalArgumentException("不支持的类型：" + clazz.getName());
+            throw new IllegalArgumentException("unsupported type：" + clazz.getName());
         }
         localConverterMapper.put(clazz, converter);
     }
