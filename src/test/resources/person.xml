@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<person>
+    <id>1567890</id>
+    <name>张三</name>
+    <sex>男</sex>
+    <age>28</age>
+    <height>1.75</height>
+    <address>北京市海淀区</address>
+    <birthday>1991/10/04</birthday>
+    <salary>12345.4325</salary>
+    <monthSalary>370,362.975</monthSalary>
+    <yearSalary>4,444,355.7</yearSalary>
+    <ismarriage>false</ismarriage>
+    <crtTime>2019-05-14 21:29:44</crtTime>
+</person>
