@@ -6,6 +6,7 @@ import org.w3c.dom.Document;
 import xin.common.converter.*;
 import xin.common.handler.DefaultFieldConverterHandler;
 import xin.common.handler.FieldConverterHandler;
+import xin.common.parse.Parser;
 import xin.common.parse.xml.annotation.XmlField;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -27,7 +28,7 @@ import java.math.BigDecimal;
  * @since 2019/5/14
  */
 @Slf4j
-public class XmlParser implements FieldValueSetter {
+public class XmlParser implements Parser {
 
     private final FieldConverterHandler handler;
 
@@ -44,7 +45,7 @@ public class XmlParser implements FieldValueSetter {
         handler.registerConverter(Float.class,new FloatFieldConverter());
     }
 
-
+    @Override
     public <T> T parse(InputStream is,Class<T> clazz) throws xin.common.parse.ParseException {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -54,16 +55,6 @@ public class XmlParser implements FieldValueSetter {
         } catch (Exception e) {
             throw new xin.common.parse.ParseException(e.getMessage(),e);
         }
-    }
-
-    public <T> T parse(String path,Class<T> clazz) throws xin.common.parse.ParseException {
-        try {
-            InputStream is = new FileInputStream(new File(path));
-            return parse(is,clazz);
-        } catch (Exception e) {
-            throw new xin.common.parse.ParseException(e.getMessage(),e);
-        }
-
     }
 
     private <T> T doParse(Document document, Class<T> clazz)
