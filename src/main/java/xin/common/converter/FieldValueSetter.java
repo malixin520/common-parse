@@ -26,6 +26,5 @@ public interface FieldValueSetter {
      * @throws IllegalAccessException
      * @throws ConvertException 当使用反射转换类型时，错误的数据格式等会出现此错误
      */
-    void setValue(Field field, Object bean, String source,String format,String scale,int roundMode)
-            throws IllegalAccessException,IllegalArgumentException,ConvertException;
+    void setFieldValue(Field field, Object bean, String source,String format,String scale,Integer roundMode) throws ConvertException;
 }

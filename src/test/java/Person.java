@@ -1,6 +1,7 @@
 import lombok.Data;
 import lombok.ToString;
-import xin.common.parse.xml.annotation.XmlField;
+import xin.common.excel.annotation.CellConfig;
+import xin.common.xml.annotation.XmlField;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -18,6 +19,7 @@ import java.util.Date;
 @ToString
 public class Person {
 
+    @CellConfig(index = -1)
     @XmlField
     private Long id;
 

@@ -25,6 +25,8 @@
         <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
         <junit-version>4.12</junit-version>
         <commons-lang3-version>3.3.2</commons-lang3-version>
+        <poi-ooxml-version>3.15</poi-ooxml-version>
+        <fastjson-version>1.2.24</fastjson-version>
     </properties>
 
     <url>https://github.com/malixin520/common-parse</url>
@@ -32,35 +34,40 @@
     <dependencies>
 
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-lang3-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>${poi-ooxml-version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>${fastjson-version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok-version}</version>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
             <version>${log4j-version}</version>
             <optional>true</optional>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>${commons-lang3-version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit-version}</version>
             <scope>test</scope>
         </dependency>
-
 
     </dependencies>
 

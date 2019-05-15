@@ -1,4 +1,4 @@
-package xin.common.parse.xml;
+package xin.common.parse;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -7,16 +7,13 @@ import xin.common.converter.*;
 import xin.common.handler.DefaultFieldConverterHandler;
 import xin.common.handler.FieldConverterHandler;
 import xin.common.parse.Parser;
-import xin.common.parse.xml.annotation.XmlField;
+import xin.common.xml.annotation.XmlField;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.math.BigDecimal;
 
 /**
  * <pre>
@@ -31,7 +28,6 @@ import java.math.BigDecimal;
 public class XmlParser implements Parser {
 
     private final FieldConverterHandler handler;
-
 
     public XmlParser(){
         handler = new DefaultFieldConverterHandler();
@@ -66,37 +62,40 @@ public class XmlParser implements Parser {
             if(xmlField != null){
                 String tag = StringUtils.isNoneBlank(xmlField.name()) ? xmlField.name() : field.getName();
                 String source = document.getElementsByTagName(tag).item(0).getTextContent();
-                setValue(field,bean, source,xmlField.format(),xmlField.scale(),xmlField.roundingMode());
+                setFieldValue(field,bean, source,xmlField.format(),xmlField.scale(),xmlField.roundingMode());
             }
         }
         return bean;
     }
 
     @Override
-    public void setValue(Field field, Object bean, String source,String format,String scale,int roundMode)
-            throws IllegalAccessException,IllegalArgumentException,ConvertException {
-        Class<?> converterClass;
-        if (field.getType().isArray()) {
-            converterClass = Array.class;
-        } else {
-            converterClass = field.getType();
-        }
-        field.setAccessible(true);
-        FieldValueConverter converter = handler.getFieldConverter(converterClass);
-        if (converter != null) {
-            Object obj = null;
-            if(converter instanceof DateFieldConverter && StringUtils.isNotBlank(format)){
-                DateFieldConverter dateConverter= (DateFieldConverter) converter;
-                obj = dateConverter.toDate(source, field,format);
-            }else if(converter instanceof BigDecimalFieldConverter && StringUtils.isNotBlank(scale)){
-                BigDecimalFieldConverter dateConverter= (BigDecimalFieldConverter) converter;
-                obj = dateConverter.toBigDecimal(source, field,Integer.valueOf(scale),roundMode);
-            }else{
-                obj= converter.toObject(source, field);
+    public void setFieldValue(Field field, Object bean, String source,String format,String scale,Integer roundMode) throws ConvertException {
+        try {
+            Class<?> converterClass;
+            if (field.getType().isArray()) {
+                converterClass = Array.class;
+            } else {
+                converterClass = field.getType();
             }
-            field.set(bean, obj);
-            return ;
+            field.setAccessible(true);
+            FieldValueConverter converter = handler.getFieldConverter(converterClass);
+            if (converter != null) {
+                Object obj;
+                if(converter instanceof DateFieldConverter && StringUtils.isNotBlank(format)){
+                    DateFieldConverter dateConverter= (DateFieldConverter) converter;
+                    obj = dateConverter.toDate(source, field,format);
+                }else if(converter instanceof BigDecimalFieldConverter && StringUtils.isNotBlank(scale)){
+                    BigDecimalFieldConverter dateConverter= (BigDecimalFieldConverter) converter;
+                    obj = dateConverter.toBigDecimal(source, field,Integer.valueOf(scale),roundMode);
+                }else{
+                    obj= converter.toObject(source, field);
+                }
+                field.set(bean, obj);
+                return ;
+            }
+            field.set(bean, source);
+        }catch (Exception e){
+            throw  new ConvertException(e.getMessage(),e);
         }
-        field.set(bean, source);//默认按String类型处理
     }
 }

@@ -49,8 +49,7 @@ public class DefaultFieldConverterHandler implements FieldConverterHandler {
     }
 
     public DefaultFieldConverterHandler() {
-        localConverterMapper = Collections
-                .synchronizedMap(new HashMap<Class<?>, FieldValueConverter>());
+        localConverterMapper = Collections.synchronizedMap(new HashMap<>());
         localConverterMapper.putAll(defaultLocalConverterMapper);
     }
 
