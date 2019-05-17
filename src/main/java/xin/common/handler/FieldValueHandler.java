@@ -1,4 +1,6 @@
-package xin.common.converter;
+package xin.common.handler;
+
+import xin.common.converter.ConvertException;
 
 import java.lang.reflect.Field;
 
@@ -12,7 +14,7 @@ import java.lang.reflect.Field;
  * @since 2019/5/14
  */
 @FunctionalInterface
-public interface FieldValueSetter {
+public interface FieldValueHandler {
 
     /**
      * Setter - 默认按String类型处理
@@ -26,5 +28,5 @@ public interface FieldValueSetter {
      * @throws IllegalAccessException
      * @throws ConvertException 当使用反射转换类型时，错误的数据格式等会出现此错误
      */
-    void setFieldValue(Field field, Object bean, String source,String format,String scale,Integer roundMode) throws ConvertException;
+    void setValue(Field field, Object bean, String source,String format,String scale,Integer roundMode) throws ConvertException;
 }

@@ -2,6 +2,7 @@ package xin.common.converter;
 import lombok.AllArgsConstructor;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -41,11 +42,16 @@ public class DateFieldConverter extends AbstractFieldValueConverter {
         }
     }
 
-    public Object toDate(String source, Field field,String format) throws ConvertException {
+    public Date toDate(String source, Field field,String format) throws ConvertException {
         try {
             return new SimpleDateFormat(format).parse(source);
         } catch (ParseException e) {
             throw new ConvertException(e.getMessage(),e);
         }
+    }
+
+    @Override
+    public BigDecimal toBigDecimal(String source, Field field, int scale, int roundMode) throws ConvertException {
+        return null;
     }
 }

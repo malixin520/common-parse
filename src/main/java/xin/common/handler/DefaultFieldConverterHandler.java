@@ -46,6 +46,15 @@ public class DefaultFieldConverterHandler implements FieldConverterHandler {
 
         converter = new BigDecimalFieldConverter();
         defaultLocalConverterMapper.put(BigDecimal.class, converter);
+
+        defaultLocalConverterMapper.put(Byte.class,new ByteFieldConverter());
+        defaultLocalConverterMapper.put(byte.class,new ByteFieldConverter());
+        defaultLocalConverterMapper.put(short.class,new ShortFieldConverter());
+        defaultLocalConverterMapper.put(Short.class,new ShortFieldConverter());
+        defaultLocalConverterMapper.put(long.class,new LongFieldConverter());
+        defaultLocalConverterMapper.put(Long.class,new LongFieldConverter());
+        defaultLocalConverterMapper.put(float.class,new FloatFieldConverter());
+        defaultLocalConverterMapper.put(Float.class,new FloatFieldConverter());
     }
 
     public DefaultFieldConverterHandler() {

@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Date;
 
 
 /**
@@ -47,9 +48,14 @@ public class BigDecimalFieldConverter extends AbstractFieldValueConverter {
      * @return
      * @throws ConvertException
      */
-    public Object toBigDecimal(String source, Field field,int scale,int roundMode) throws ConvertException{
+    public BigDecimal toBigDecimal(String source, Field field,int scale,int roundMode) throws ConvertException{
         BigDecimal target = (BigDecimal) toObject(source,field);
         return target.setScale(scale,roundMode);
+    }
+
+    @Override
+    public Date toDate(String source, Field field, String format) throws ConvertException {
+        return null;
     }
 
 }

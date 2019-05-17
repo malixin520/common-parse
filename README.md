@@ -6,14 +6,14 @@
 
 ### xml解析
 
-使用`xin.common.xml.annotation.XmlField`注解标注`bean`的属性
+使用`xin.common.parse.xml.annotation.XmlField`注解标注`bean`的属性
 
  **实体bean**
 
 ```java
 import lombok.Data;
 import lombok.ToString;
-import xin.common.xml.annotation.XmlField;
+import xin.common.parse.xml.annotation.XmlField;
 
 import java.math.BigDecimal;
 import java.util.Date;

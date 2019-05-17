@@ -1,4 +1,4 @@
-package xin.common.excel.annotation;
+package xin.common.parse.excel.annotation;
 
 import java.lang.annotation.*;
 

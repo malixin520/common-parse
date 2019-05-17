@@ -1,4 +1,4 @@
-package xin.common.xml.annotation;
+package xin.common.parse.xml.annotation;
 
 import java.lang.annotation.*;
 

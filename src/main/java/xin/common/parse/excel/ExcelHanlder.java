@@ -1,4 +1,4 @@
-package xin.common.excel;
+package xin.common.parse.excel;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFPalette;
@@ -12,13 +12,10 @@ import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import xin.common.converter.ConvertException;
-import xin.common.converter.FieldValueConverter;
-import xin.common.converter.FieldValueSetter;
-import xin.common.handler.DefaultFieldConverterHandler;
-import xin.common.handler.FieldConverterHandler;
-import xin.common.excel.annotation.CellConfig;
+import xin.common.handler.DefaultFieldValueHandler;
+import xin.common.parse.excel.annotation.CellConfig;
+import xin.common.parse.excel.annotation.DataType;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -37,12 +34,10 @@ import java.util.List;
  * @version 1.1
  * @since 2019/5/15
  */
-public class ExcelHanlder implements FieldValueSetter {
+public class ExcelHanlder extends DefaultFieldValueHandler {
     protected final static int START_ROW_NUM = 1;
     protected final static int MAX_CELL_WIDTH = 6000;
     protected final static int MIN_CELL_WIDTH = 2000;
-
-    protected FieldConverterHandler handler = new DefaultFieldConverterHandler();
 
     protected static short headRowBGColorIndex;
     protected static short titleGBColorIndex;
@@ -74,10 +69,6 @@ public class ExcelHanlder implements FieldValueSetter {
         titleGBColor = new XSSFColor(new java.awt.Color(91, 155, 213));
     }
 
-    public void registerConverter(Class<?> clazz, FieldValueConverter converter) {
-        handler.registerConverter(clazz, converter);
-    }
-
     protected List<String> excludes = new ArrayList<>();
 
     /**
@@ -96,9 +87,9 @@ public class ExcelHanlder implements FieldValueSetter {
      */
     protected Object format(Object val, CellConfig cellConfig) {
         String pattern = cellConfig.pattern();
-        String dataType = cellConfig.dataType();
-        if (StringUtils.isNotBlank(dataType) && val != null) {
-            if ("date".equalsIgnoreCase(dataType)) {
+        DataType dataType = cellConfig.dataType();
+        if (dataType != null) {
+            if (DataType.date.equals(dataType)) {
                 if (StringUtils.isBlank(pattern)) {
                     pattern = "yyyy-MM-dd";
                 }
@@ -107,7 +98,7 @@ public class ExcelHanlder implements FieldValueSetter {
                 } else if (val instanceof Date) {
                     val = new SimpleDateFormat(pattern).format((Date) val);
                 }
-            } else if ("currency".equalsIgnoreCase(dataType)) {
+            } else if (DataType.currency.equals(dataType)) {
                 if (StringUtils.isBlank(pattern)) {
                     pattern = "¤#,##0.00;-¤#,##0.00";
                 }
@@ -291,11 +282,10 @@ public class ExcelHanlder implements FieldValueSetter {
      * @param row 行
      * @param bean 实体 bean
      * @param fields 属性集
-     * @param formatter 格式转换器
      * @author lixin_ma@outlook.com
      * @since 2019/5/15
      */
-    protected void rowToBean(Row row, Object bean, Field[] fields, DataFormatter formatter) throws ConvertException{
+    protected void rowToBean(Row row, Object bean, Field[] fields,DataFormatter formatter) throws ConvertException{
         if (row == null) {
             return;
         }
@@ -304,11 +294,10 @@ public class ExcelHanlder implements FieldValueSetter {
             if (cellConfig == null || cellConfig.index() == -1) {
                 continue;
             }
-
             Cell cell = row.getCell(cellConfig.index());
             String text = formatter.formatCellValue(cell);//内容
             validateRequired(cellConfig, text, row.getRowNum());// 必输校验
-            setFieldValue(field, bean, text,null,null,null);//映射赋值
+            setValue(field, bean, text,cellConfig.pattern(),cellConfig.scale(),cellConfig.roundingMode());//映射赋值
         }
     }
 
@@ -322,29 +311,8 @@ public class ExcelHanlder implements FieldValueSetter {
         if (cellConfig.required()) {
             if (StringUtils.isBlank(text)) {
                 CellReference cellReference = new CellReference(rowNum, cellConfig.index());
-                throw new NullPointerException(" cell [" + cellReference.formatAsString() + " ] can not be null");
+                throw new NullPointerException(" cell [" + cellReference.formatAsString() + "] can not be null or empty string");
             }
-        }
-    }
-
-    @Override
-    public void setFieldValue(Field field, Object bean, String source,String format,String scale,Integer roundMode) throws ConvertException {
-        try {
-            Class<?> converterClass;
-            if (field.getType().isArray()) {
-                converterClass = Array.class;
-            } else {
-                converterClass = field.getType();
-            }
-            FieldValueConverter converter = handler.getFieldConverter(converterClass);
-            if (converter != null) {
-                Object obj = converter.toObject(source, field);
-                field.set(bean, obj);
-                return;
-            }
-            field.set(bean, source);
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
         }
     }
 }

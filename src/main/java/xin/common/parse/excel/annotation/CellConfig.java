@@ -1,4 +1,4 @@
-package xin.common.excel.annotation;
+package xin.common.parse.excel.annotation;
 
 import java.lang.annotation.*;
 
@@ -72,7 +72,7 @@ public @interface CellConfig {
      * 数据类型[string/currency/date]
      * @return
      */
-    String dataType() default "string";
+    DataType dataType() default DataType.string;
 
     /**
      * 格式化模板，与dataType配套使用
@@ -85,5 +85,17 @@ public @interface CellConfig {
      * @return
      */
     int priority() default -1;
+
+    /**
+     * 数字类型的精度
+     * @return
+     */
+    String scale() default "";
+
+    /**
+     * 舍入模式：默认4
+     * @return
+     */
+    int  roundingMode() default 4;
 
 }

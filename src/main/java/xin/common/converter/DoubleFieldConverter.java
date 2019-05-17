@@ -3,6 +3,8 @@ package xin.common.converter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * <pre>
@@ -30,6 +32,16 @@ public class DoubleFieldConverter extends AbstractFieldValueConverter {
         } catch (Exception e) {
             throw new ConvertException(e.getMessage(),e);
         }
+    }
+
+    @Override
+    public Date toDate(String source, Field field, String format) throws ConvertException {
+        return null;
+    }
+
+    @Override
+    public BigDecimal toBigDecimal(String source, Field field, int scale, int roundMode) throws ConvertException {
+        return null;
     }
 
 }

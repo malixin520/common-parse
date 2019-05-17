@@ -1,6 +1,6 @@
 package xin.common.parse;
 
-import xin.common.converter.FieldValueSetter;
+import xin.common.handler.FieldValueHandler;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,7 +15,7 @@ import java.io.InputStream;
  * @version 1.0
  * @since 2019/5/15
  */
-public interface Parser extends FieldValueSetter {
+public interface Parser extends FieldValueHandler {
 
     /**
      * 从流中读取数据，解析为Java Bean
