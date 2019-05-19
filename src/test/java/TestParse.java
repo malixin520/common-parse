@@ -1,3 +1,4 @@
+import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.junit.Assert;
@@ -50,8 +51,8 @@ public class TestParse {
         List<Person> beans =  stream.collect(Collectors.toList());
         beans.forEach(person -> {
             Assert.assertNotNull("Person is null",person);
-            log.info("parse test resource person.xls to java Person bean : {}",person.toString());
         });
+        log.info("parse test resource person.xls to java Person bean : {}", JSONObject.toJSONString(beans));
 
         ExcelExporter exporter = new ExcelExporter();
         try {

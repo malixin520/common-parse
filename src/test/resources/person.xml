@@ -8,8 +8,8 @@
     <address>北京市海淀区</address>
     <birthday>1991/10/04</birthday>
     <salary>12345.4325</salary>
-    <monthSalary>370,362.975</monthSalary>
-    <yearSalary>4,444,355.7</yearSalary>
+    <salary1>370,362.975</salary1>
+    <salary2>4,444,355.7</salary2>
     <ismarriage>false</ismarriage>
     <crtTime>2019-05-14 21:29:44</crtTime>
 </person>
