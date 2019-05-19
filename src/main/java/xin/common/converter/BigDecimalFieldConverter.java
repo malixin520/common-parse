@@ -4,7 +4,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Date;
 
 
@@ -38,16 +37,7 @@ public class BigDecimalFieldConverter extends AbstractFieldValueConverter {
         }
     }
 
-
-    /**
-     *
-     * @param source 源
-     * @param field Field
-     * @param scale 精度
-     * @param roundMode 舍入模式  {@linkplain RoundingMode}
-     * @return
-     * @throws ConvertException
-     */
+    @Override
     public BigDecimal toBigDecimal(String source, Field field,int scale,int roundMode) throws ConvertException{
         BigDecimal target = (BigDecimal) toObject(source,field);
         return target.setScale(scale,roundMode);

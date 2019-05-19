@@ -24,8 +24,8 @@ public class DefaultFieldConverterHandler implements FieldConverterHandler {
 
     private final Map<Class<?>, FieldValueConverter> localConverterMapper;
 
-    /**
-     * 内置初始化的转换器
+    /*
+      内置初始化的转换器
      */
     static {
         FieldValueConverter converter;

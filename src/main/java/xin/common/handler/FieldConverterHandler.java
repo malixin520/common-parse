@@ -21,8 +21,8 @@ public interface FieldConverterHandler {
      * <pre>
      * 说明:注册自定义转换器
      * </pre>
-     * @param clazz
-     * @param converter
+     * @param clazz clazz
+     * @param converter 转换器
      * @author lixin_ma@outlook.com
      * @since 2018/11/20
      */

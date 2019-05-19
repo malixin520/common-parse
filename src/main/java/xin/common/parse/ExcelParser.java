@@ -5,7 +5,7 @@ import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import xin.common.parse.excel.ExcelHanlder;
+import xin.common.parse.excel.ExcelHandler;
 import xin.common.parse.excel.annotation.TableConfig;
 
 import java.io.InputStream;
@@ -24,7 +24,7 @@ import java.util.stream.Stream;
  * @since 2019/5/15
  */
 @Slf4j
-public class ExcelParser extends ExcelHanlder implements StreamParser {
+public class ExcelParser extends ExcelHandler implements StreamParser {
 
     @Override
     public <T> Stream<T> parseStream(InputStream is, Class<T> clazz) throws ParseException {

@@ -17,26 +17,26 @@ import java.lang.annotation.*;
 public  @interface XmlField {
 
     /**
-     * xml 标签名称，默认为空，取字段名
-     * @return
+     * xml 标签名称
+     * @return  默认为空,取字段名
      */
     String name() default "";
 
     /**
      * 日期类型时的format
-     * @return
+     * @return 默认为空
      */
     String format() default "";
 
     /**
      * 数字类型的精度
-     * @return
+     * @return 默认为空
      */
     String scale() default "";
 
     /**
-     * 舍入模式：默认4
-     * @return
+     * 舍入模式
+     * @return 默认4
      */
     int  roundingMode() default 4;
 }

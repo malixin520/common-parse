@@ -1,5 +1,8 @@
 package xin.common.parse.excel;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFPalette;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -34,7 +37,8 @@ import java.util.List;
  * @version 1.1
  * @since 2019/5/15
  */
-public class ExcelHanlder extends DefaultFieldValueHandler {
+@Slf4j
+public class ExcelHandler extends DefaultFieldValueHandler {
     protected final static int START_ROW_NUM = 1;
     protected final static int MAX_CELL_WIDTH = 6000;
     protected final static int MIN_CELL_WIDTH = 2000;
@@ -48,6 +52,7 @@ public class ExcelHanlder extends DefaultFieldValueHandler {
     protected static XSSFColor headRowBGColor;
     protected static XSSFColor titleGBColor;
     protected static HSSFPalette palette;
+    protected List<String> excludes = new ArrayList<>();
 
     static {
         palette = new HSSFWorkbook().getCustomPalette();
@@ -69,8 +74,6 @@ public class ExcelHanlder extends DefaultFieldValueHandler {
         titleGBColor = new XSSFColor(new java.awt.Color(91, 155, 213));
     }
 
-    protected List<String> excludes = new ArrayList<>();
-
     /**
      * 设置默认工作簿样式-默认背景色，白色
      * @param sheet 工作簿
@@ -88,22 +91,20 @@ public class ExcelHanlder extends DefaultFieldValueHandler {
     protected Object format(Object val, CellConfig cellConfig) {
         String pattern = cellConfig.pattern();
         DataType dataType = cellConfig.dataType();
-        if (dataType != null) {
-            if (DataType.date.equals(dataType)) {
-                if (StringUtils.isBlank(pattern)) {
-                    pattern = "yyyy-MM-dd";
-                }
-                if (val instanceof LocalDateTime) {
-                    val = DateTimeFormatter.ofPattern(pattern).format((LocalDateTime) val);
-                } else if (val instanceof Date) {
-                    val = new SimpleDateFormat(pattern).format((Date) val);
-                }
-            } else if (DataType.currency.equals(dataType)) {
-                if (StringUtils.isBlank(pattern)) {
-                    pattern = "¤#,##0.00;-¤#,##0.00";
-                }
-                val = new DecimalFormat(pattern).format(val);
+        if (DataType.date.equals(dataType)) {
+            if (StringUtils.isBlank(pattern)) {
+                pattern = "yyyy-MM-dd";
             }
+            if (val instanceof LocalDateTime) {
+                val = DateTimeFormatter.ofPattern(pattern).format((LocalDateTime) val);
+            } else if (val instanceof Date) {
+                val = new SimpleDateFormat(pattern).format((Date) val);
+            }
+        } else if (DataType.currency.equals(dataType)) {
+            if (StringUtils.isBlank(pattern)) {
+                pattern = "¤#,##0.00;-¤#,##0.00";
+            }
+            val = new DecimalFormat(pattern).format(val);
         }
         return val;
     }
@@ -155,7 +156,6 @@ public class ExcelHanlder extends DefaultFieldValueHandler {
      * @since 2019/5/15
      */
     protected void createHeadRow(Workbook workbook, Sheet sheet, Field[] fields) {
-        CellRangeAddress rangeAddress = new CellRangeAddress(0, 0, 0, 0);
         int rowIndex = sheet.getLastRowNum() + 1;
         Row row = sheet.createRow(rowIndex);
         CellStyle style = workbook.createCellStyle();
@@ -169,7 +169,7 @@ public class ExcelHanlder extends DefaultFieldValueHandler {
             if (cellConfig == null) {
                 continue;
             }
-            if (cellConfig.omit()
+            if (!cellConfig.omit()
                     && !excludes.contains(field.getName())) {
                 int cellIndex = getLastCellNum(row);
                 Cell cell = row.createCell(cellIndex);
@@ -201,7 +201,7 @@ public class ExcelHanlder extends DefaultFieldValueHandler {
         int cellCount = 0;
         for (Field field : fields) {
             CellConfig cellConfig = field.getAnnotation(CellConfig.class);
-            if (canExport(field, cellConfig) && cellConfig.omit()
+            if (canExport(field, cellConfig) && !cellConfig.omit()
                     && !excludes.contains(field.getName())) {
                 cellCount++;
             }
@@ -211,6 +211,10 @@ public class ExcelHanlder extends DefaultFieldValueHandler {
         int cellIndex = getLastCellNum(row);
         Cell cell = row.createCell(cellIndex);
         int lastCol = cellCount - 1;
+        log.info("rowIndex : {}",rowIndex);
+        log.info("cellIndex : {}",cellIndex);
+        log.info("lastCol : {}",lastCol);
+        log.info("cellCount : {}",cellCount);
         CellRangeAddress rangeAddress = new CellRangeAddress(rowIndex, rowIndex, cellIndex, lastCol);
         sheet.addMergedRegion(rangeAddress);
         cell.setCellValue(title);
@@ -273,6 +277,69 @@ public class ExcelHanlder extends DefaultFieldValueHandler {
         RegionUtil.setBorderBottom(BorderStyle.THIN.getCode(), rangeAddress, sheet);
         RegionUtil.setBorderLeft(BorderStyle.THIN.getCode(), rangeAddress, sheet);
     }
+
+    /**
+     * <pre>
+     * 说明:创建内容行
+     * </pre>
+     *
+     * @param sheet
+     * @param beans
+     * @param fields
+     * @author lixin_ma@outlook.com
+     * @since 2018/11/20
+     */
+    public <T> void beansToRow(Workbook workbook, Sheet sheet, List<T> beans, Field[] fields) {
+        if (beans == null) {
+            return;
+        }
+        for(T bean :beans){
+            int rowIndex = sheet.getLastRowNum() + 1;
+            Row row = sheet.createRow(rowIndex);
+            for (Field field : fields) {
+                CellConfig cellConfig = field.getAnnotation(CellConfig.class);
+                if (!canExport(field, cellConfig) || cellConfig.omit() || excludes.contains(field.getName())) {
+                    continue;
+                }
+
+                int cellIndex = getLastCellNum(row);
+                Cell cell = row.createCell(cellIndex);
+                try {
+                    Object val = field.get(bean);
+                    XSSFColor cellBGColor = null;
+                    if (val != null) {
+                        JSONObject statusValue = JSON.parseObject(cellConfig.statusValue());
+                        JSONObject sv = statusValue.getJSONObject(val.toString());
+                        if (sv != null) {
+                            Object tmp = sv.get("text");
+                            if (tmp != null) {
+                                val = tmp;
+
+                                String color = sv.getString("bgColor");
+                                if (StringUtils.isNotBlank(color)) {
+                                    String[] rgbStr = color.split(",");
+
+                                    cellBGColor = new XSSFColor(new java.awt.Color(Integer.valueOf(rgbStr[0]), Integer.valueOf(rgbStr[1]), Integer.valueOf(rgbStr[2])));
+                                }
+                            }
+                        }
+                        val = format(val, cellConfig);
+                        cell.setCellValue(String.valueOf(val));
+                    }
+
+                    CellStyle  style = workbook.createCellStyle();
+                    setBodyCellStyle(style, cell, rowIndex);
+                    if (cellBGColor != null) {
+                        setFillForegroundColor(cell.getCellStyle(), (short) 0, cellBGColor);
+                    }
+                    setAutoSizeColumn(sheet, cellIndex);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
 
     /**
      * <pre>
