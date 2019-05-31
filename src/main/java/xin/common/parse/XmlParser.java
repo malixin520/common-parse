@@ -3,6 +3,7 @@ package xin.common.parse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 import xin.common.converter.*;
 import xin.common.handler.DefaultFieldValueHandler;
 import xin.common.parse.xml.annotation.XmlField;
@@ -44,8 +45,14 @@ public class XmlParser extends DefaultFieldValueHandler implements Parser {
             XmlField xmlField =  field.getAnnotation(XmlField.class);
             if(xmlField != null){
                 String tag = StringUtils.isNoneBlank(xmlField.name()) ? xmlField.name() : field.getName();
-                String source = document.getElementsByTagName(tag).item(0).getTextContent();
+                NodeList nodeList = document.getElementsByTagName(tag);
+                String source = null;
+                if(nodeList!= null && nodeList.getLength() > 0){
+                    source = document.getElementsByTagName(tag).item(0).getTextContent();
+                    source = StringUtils.isBlank(source) ? null :source;
+                }
                 setValue(field,bean, source,xmlField.format(),xmlField.scale(),xmlField.roundingMode());
+
             }
         }
         return bean;
